@@ -26,6 +26,7 @@ const textMessage = `{
 
 var textTemplate = template.Must(template.New("text").Parse(textMessage))
 
+// SendText https://open.feishu.cn/document/ukTMukTMukTM/ucTM5YjL3ETO24yNxkjN#756b882f
 func (b Bot) SendText(text string) error {
 	var buf bytes.Buffer
 	err := textTemplate.Execute(&buf, text)
