@@ -30,8 +30,9 @@ func (f FeishuBotHook) Fire(entry *logrus.Entry) error {
 	}
 	// trim \n
 	text = strings.TrimSpace(text)
-	// escape double quotes
-	text = strings.Replace(text, `"`, `\"`, -1)
+	// remove double quotes and backslashes
+	text = strings.Replace(text, `"`, ``, -1)
+	text = strings.Replace(text, `\`, ``, -1)
 
 	return f.bot.SendText(text)
 }

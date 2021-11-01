@@ -3,6 +3,7 @@ package feishu
 import (
 	"github.com/sirupsen/logrus"
 	"testing"
+	"time"
 )
 
 func TestNewFeishuBotHook(t *testing.T) {
@@ -16,5 +17,10 @@ func TestNewFeishuBotHook(t *testing.T) {
 	logrus.AddHook(hook)
 
 	logrus.Info("info")
-	logrus.Errorf("error")
+	logrus.Error("error")
+	_, err := time.Parse(time.RFC3339, "")
+	if err != nil {
+		logrus.Error(err)
+		return
+	}
 }
