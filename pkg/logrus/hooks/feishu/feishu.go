@@ -3,7 +3,6 @@ package feishu
 import (
 	"github.com/sirupsen/logrus"
 	"github.com/xujiahua/codebase/pkg/sdk/feishu"
-	"strings"
 )
 
 type FeishuBotHook struct {
@@ -28,11 +27,6 @@ func (f FeishuBotHook) Fire(entry *logrus.Entry) error {
 	if err != nil {
 		return err
 	}
-	// trim \n
-	text = strings.TrimSpace(text)
-	// remove double quotes and backslashes
-	text = strings.Replace(text, `"`, ``, -1)
-	text = strings.Replace(text, `\`, ``, -1)
 
 	return f.bot.SendText(text)
 }

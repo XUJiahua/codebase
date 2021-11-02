@@ -1,8 +1,8 @@
 package feishu
 
 import (
-	"bytes"
-	"text/template"
+	"encoding/json"
+	"strings"
 )
 
 type Bot struct {
@@ -17,21 +17,26 @@ func NewBot(webhook string) *Bot {
 	}
 }
 
-const textMessage = `{
-    "msg_type": "text",
-    "content": {
-        "text": "{{.}}"
-    }
-}`
+type TextMessageRequest struct {
+	MsgType string             `json:"msg_type"`
+	Content TextMessageContent `json:"content"`
+}
 
-var textTemplate = template.Must(template.New("text").Parse(textMessage))
+type TextMessageContent struct {
+	Text string `json:"text"`
+}
 
 // SendText https://open.feishu.cn/document/ukTMukTMukTM/ucTM5YjL3ETO24yNxkjN#756b882f
 func (b Bot) SendText(text string) error {
-	var buf bytes.Buffer
-	err := textTemplate.Execute(&buf, text)
+	bs, err := json.Marshal(TextMessageRequest{
+		MsgType: "text",
+		Content: TextMessageContent{
+			Text: text,
+		},
+	})
 	if err != nil {
 		return err
 	}
-	return b.sdk.WebhookV2(b.webhook, &buf)
+
+	return b.sdk.WebhookV2(b.webhook, strings.NewReader(string(bs)))
 }
