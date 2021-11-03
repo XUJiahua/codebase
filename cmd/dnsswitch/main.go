@@ -5,12 +5,20 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"flag"
 	"fmt"
 	"log"
 	"os"
 	"os/exec"
 	"strings"
 )
+
+var debug *bool
+
+func init() {
+	debug = flag.Bool("d", false, "debug flag")
+	flag.Parse()
+}
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
@@ -79,6 +87,10 @@ func runCmd(cmdStr string) ([]byte, error) {
 		return nil, errors.New(stderr.String())
 	}
 
+	if *debug {
+		fmt.Println(string(stdout.Bytes()))
+	}
+
 	return stdout.Bytes(), nil
 }
 
@@ -93,6 +105,7 @@ func EnsureDomainRecordExist(domain, rr, ip string) error {
 	}
 	// keep if no change
 	if record.Value == ip {
+		fmt.Printf("keeping: %s.%s => %s\n", rr, domain, ip)
 		return nil
 	}
 	// update existing
@@ -106,7 +119,6 @@ func GetDomainRecord(domain, rr string) (*DomainRecord, error) {
 		return nil, err
 	}
 
-	fmt.Println(string(output))
 	var resp GetResponse
 	err = json.Unmarshal(output, &resp)
 	if err != nil {
@@ -125,25 +137,13 @@ func GetDomainRecord(domain, rr string) (*DomainRecord, error) {
 func UpdateDomainRecord(recordId, rr, ip, domain string) error {
 	fmt.Printf("updating %s: %s.%s => %s\n", recordId, rr, domain, ip)
 	updateCmd := fmt.Sprintf(updateCmdFmt, recordId, rr, ip)
-	output, err := runCmd(updateCmd)
-	if err != nil {
-		return err
-	}
-
-	fmt.Println(string(output))
-
-	return nil
+	_, err := runCmd(updateCmd)
+	return err
 }
 
 func CreateDomainRecord(domain, rr, ip string) error {
 	fmt.Printf("creating: %s.%s => %s\n", rr, domain, ip)
 	createCmd := fmt.Sprintf(createCmdFmt, domain, rr, ip)
-	output, err := runCmd(createCmd)
-	if err != nil {
-		return err
-	}
-
-	fmt.Println(string(output))
-
-	return nil
+	_, err := runCmd(createCmd)
+	return err
 }
