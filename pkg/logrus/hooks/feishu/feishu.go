@@ -1,6 +1,7 @@
 package feishu
 
 import (
+	"fmt"
 	"github.com/sirupsen/logrus"
 	"github.com/xujiahua/codebase/pkg/sdk/feishu"
 )
@@ -28,5 +29,12 @@ func (f FeishuBotHook) Fire(entry *logrus.Entry) error {
 		return err
 	}
 
-	return f.bot.SendText(text)
+	go func() {
+		err := f.bot.SendText(text)
+		if err != nil {
+			fmt.Printf("send feishu bot message failed: %v\n", err)
+		}
+	}()
+
+	return nil
 }
